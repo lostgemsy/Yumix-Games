@@ -15,11 +15,14 @@ h1{font-size:1.8rem;font-weight:900;letter-spacing:-.04em}
 </style></head><body>
 <nav class="top"><a class="logo" href="index.html">Yumix<b>.</b>Games</a><div class="links"><a href="index.html">Home</a></div></nav>
 <main class="wrap"><h1>Owner Inbox</h1>
-<div class="row" id="login"><input id="pw" type="password" placeholder="Owner password"><button class="btn dark" id="in">Unlock</button></div>
+<div class="row" id="login"><input id="pw" type="password" placeholder="Owner password" value="yumix123"><button class="btn dark" id="in">Unlock</button></div>
+<div class="note">Local demo password: <b>yumix123</b> (set OWNER_PASSWORD in production for a real password)</div>
 <div class="row" id="tools" hidden><button class="btn" id="ref">Refresh</button><button class="btn" id="clr">Clear all</button><span class="note" id="n"></span></div>
 <div class="err" id="err"></div><div class="list" id="list"></div></main>
 <script>
-const $=i=>document.getElementById(i);let pw=sessionStorage.getItem('ym-pw')||'';
+const $=i=>document.getElementById(i);
+const DEFAULT_PW='yumix123';
+let pw=sessionStorage.getItem('ym-pw') || DEFAULT_PW;
 const H=()=>({'x-owner-password':pw});
 async function load(){
   $('err').textContent='';
