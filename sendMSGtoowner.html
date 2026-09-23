@@ -1,0 +1,47 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Message the Owner | Yumix Games</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.room{display:flex;flex-direction:column;height:calc(100vh - 140px);min-height:420px}
+h1{font-size:1.6rem;font-weight:900;letter-spacing:-.04em}
+.sub{color:var(--mut);font-weight:600;margin:4px 0 16px;font-size:.92rem}
+.feed{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px 2px}
+.m{border-color:var(--ink)}
+.m .h{display:flex;justify-content:space-between;font-size:13px;font-weight:800;margin-bottom:4px}
+.m .h span{color:#aaa;font-weight:600}
+.m p{color:#333;line-height:1.5;word-break:break-word;white-space:pre-wrap}
+.sys{text-align:center;color:#aaa;font-weight:600;font-size:13px;padding:30px 0}
+.comp{display:grid;grid-template-columns:150px 1fr auto;gap:10px;margin-top:14px;align-items:stretch}
+.comp textarea{height:54px;resize:none}
+.err{color:#c0392b;font-weight:600;font-size:13px;margin-top:8px;min-height:18px}
+@media(max-width:600px){.comp{grid-template-columns:1fr auto}.comp input{grid-column:1/-1}}
+</style></head><body>
+<nav class="top"><a class="logo" href="index.html">Yumix<b>.</b>Games</a>
+<div class="links"><a href="index.html">Home</a><a href="games.html">Games</a><a class="on" href="sendMSGtoowner.html">Message Owner</a></div></nav>
+<main class="wrap room"><h1>Send messages to the Owner of this site</h1>
+<p class="sub">Ideas, bugs, game requests. The owner reads everything.</p>
+<div class="feed" id="feed"></div>
+<form class="comp" id="form"><input id="name" maxlength="30" placeholder="Your name"><textarea id="text" maxlength="500" placeholder="Write a message..." required></textarea><button class="btn dark" id="go">Send</button></form>
+<div class="err" id="err"></div></main>
+<script>
+const feed=document.getElementById('feed'),err=document.getElementById('err'),name=document.getElementById('name'),text=document.getElementById('text'),go=document.getElementById('go');
+let mine=[];try{mine=JSON.parse(localStorage.getItem('ym-sent')||'[]');name.value=localStorage.getItem('ym-name')||''}catch(e){}
+const fmt=t=>new Date(t).toLocaleString([], {dateStyle:'short',timeStyle:'short'});
+function draw(){feed.textContent='';
+  if(!mine.length){const d=document.createElement('div');d.className='sys';d.textContent='No messages yet. Say hi!';feed.appendChild(d)}
+  mine.forEach(m=>{const c=document.createElement('div');c.className='card m';
+    const h=document.createElement('div');h.className='h';const n=document.createElement('b');n.textContent=m.name+' (you)';const s=document.createElement('span');s.textContent=fmt(m.t);h.append(n,s);
+    const p=document.createElement('p');p.textContent=m.text;c.append(h,p);feed.appendChild(c)});
+  feed.scrollTop=feed.scrollHeight}
+document.getElementById('form').addEventListener('submit',async e=>{e.preventDefault();
+  const body={name:name.value.trim()||'Guest',text:text.value.trim()};if(!body.text)return;
+  go.disabled=true;err.textContent='';
+  try{const r=await fetch('/api/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||'Could not send');
+    mine.push({...body,t:Date.now()});mine=mine.slice(-50);
+    try{localStorage.setItem('ym-sent',JSON.stringify(mine));localStorage.setItem('ym-name',name.value)}catch(_){}
+    text.value='';draw()}catch(x){err.textContent=x.message}
+  go.disabled=false});
+draw();
+</script></body></html>

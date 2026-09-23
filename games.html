@@ -1,0 +1,37 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Games | Yumix Games</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+h1{font-size:2.2rem;font-weight:900;letter-spacing:-.04em}
+.bar{display:flex;gap:14px;align-items:center;margin:16px 0 24px;flex-wrap:wrap}
+.bar input{max-width:420px}.cnt{color:var(--mut);font-weight:600;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px}
+.g{background:#fff;border:2px solid var(--line);border-radius:16px;padding:10px;transition:.2s}
+.g:hover{border-color:var(--ink);transform:translateY(-4px);box-shadow:0 12px 28px #0002}
+.g img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:11px;background:#eee;display:block}
+.g h3{font-size:.9rem;margin:10px 2px 2px;font-weight:700}
+.empty{grid-column:1/-1;text-align:center;color:var(--mut);padding:60px 10px;font-weight:600}
+</style></head><body>
+<nav class="top"><a class="logo" href="index.html">Yumix<b>.</b>Games</a>
+<div class="links"><a href="index.html">Home</a><a class="on" href="games.html">Games</a><a href="sendMSGtoowner.html">Message Owner</a></div></nav>
+<main class="wrap"><h1>Games</h1>
+<div class="bar"><input id="q" type="search" placeholder="Search games..." autocomplete="off"><span class="cnt" id="cnt"></span></div>
+<div class="grid" id="grid"></div></main>
+<script src="games.js"></script>
+<script>
+const nice=f=>f.replace(/[-_]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+const grid=document.getElementById('grid'),cnt=document.getElementById('cnt');
+function draw(){
+  const q=document.getElementById('q').value.trim().toLowerCase();
+  const list=GAMES.filter(g=>(g.name||nice(g.folder)).toLowerCase().includes(q));
+  grid.textContent='';cnt.textContent=GAMES.length+' games';
+  if(!list.length){const d=document.createElement('div');d.className='empty';d.textContent=GAMES.length?'No games found.':'No games yet. Add some in games.js!';grid.appendChild(d);return}
+  list.forEach(g=>{
+    const a=document.createElement('a');a.className='g';a.href='game.html?g='+encodeURIComponent(g.folder);
+    const i=new Image();i.src='images/'+g.image;i.alt='';i.loading='lazy';
+    const h=document.createElement('h3');h.textContent=g.name||nice(g.folder);
+    a.append(i,h);grid.appendChild(a)});
+}
+document.getElementById('q').addEventListener('input',draw);draw();
+</script></body></html>

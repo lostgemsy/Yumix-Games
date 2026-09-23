@@ -1,0 +1,20 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Play | Yumix Games</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>body{display:flex;flex-direction:column;height:100vh}
+.bar{display:flex;align-items:center;gap:10px;padding:10px 18px;background:#fff;border-bottom:2px solid var(--line)}
+.bar h1{flex:1;font-size:1rem;font-weight:800}.bar .btn{padding:9px 16px;font-size:13px;border-radius:10px}
+iframe{flex:1;border:0;width:100%;background:#000}</style></head><body>
+<div class="bar"><a class="btn" href="games.html">Back</a><h1 id="t">Loading...</h1>
+<button class="btn" id="rl">Reload</button><button class="btn dark" id="fs">Fullscreen</button></div>
+<iframe id="f" allowfullscreen allow="autoplay; fullscreen; gamepad"></iframe>
+<script src="games.js"></script>
+<script>
+const id=new URLSearchParams(location.search).get('g');
+const g=GAMES.find(x=>x.folder===id),f=document.getElementById('f'),t=document.getElementById('t');
+if(g){t.textContent=g.name||g.folder;document.title=t.textContent+' | Yumix Games';f.src='Games/'+g.folder.split('/').map(encodeURIComponent).join('/')+'/index.html'}
+else t.textContent='Game not found';
+document.getElementById('rl').onclick=()=>f.src=f.src;
+document.getElementById('fs').onclick=()=>f.requestFullscreen&&f.requestFullscreen();
+</script></body></html>

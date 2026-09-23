@@ -1,0 +1,49 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Yumix Games</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.hero{text-align:center;padding:72px 20px 40px}
+.hero h1{font-size:clamp(3rem,11vw,6.5rem);font-weight:900;letter-spacing:-.06em;line-height:1}
+.hero h1 b{color:var(--acc)}
+.hero p{max-width:560px;margin:18px auto 30px;color:#555;font-weight:500;line-height:1.6}
+.cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.cred{margin-top:56px;text-align:center}
+.cred h2{font-size:1.1rem;font-weight:800;letter-spacing:-.02em}
+.cred p{color:var(--mut);font-size:.9rem;margin:6px 0 22px}
+.slider{overflow:hidden;-webkit-mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.track{display:flex;gap:18px;width:max-content;animation:slide 30s linear infinite}
+.slider:hover .track{animation-play-state:paused}
+@keyframes slide{to{transform:translateX(-50%)}}
+.slide{width:170px;flex:none;text-align:center}
+.slide .im{width:170px;height:170px;border-radius:18px;background:#eee center/cover;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;color:#bbb;font-weight:700;font-size:12px;padding:10px}
+.slide img{width:100%;height:100%;object-fit:cover;border-radius:16px}
+.slide span{display:block;margin-top:8px;font-size:13px;font-weight:700}
+footer{text-align:center;color:#aaa;font-size:.8rem;padding:48px 0 32px;font-weight:600}
+</style></head><body>
+<nav class="top"><a class="logo" href="index.html">Yumix<b>.</b>Games</a>
+<div class="links"><a class="on" href="index.html">Home</a><a href="games.html">Games</a><a href="sendMSGtoowner.html">Message Owner</a></div></nav>
+<header class="hero"><h1>Yumix <b>Games</b></h1>
+<p>Jump into a game in one click. No downloads, no waiting, just play.</p>
+<div class="cta"><a class="btn dark" href="games.html">Play Games</a><a class="btn acc" href="sendMSGtoowner.html">Message the Owner</a></div></header>
+<section class="cred"><h2>Thank you to our helpers</h2><p>The people who made this site possible.</p>
+<div class="slider"><div class="track" id="track"></div></div></section>
+<footer>Made by the Yumix team</footer>
+<script>
+/* Add your credit images to assets/slider/ then list them here.
+   Use a filename string or {src:'file.png', name:'Helper name'}. */
+const SLIDES=[
+  // 'helper1.png',
+  // {src:'helper2.png', name:'Alex'},
+];
+const items=SLIDES.length?SLIDES:Array.from({length:8},()=>null);
+const html=items.map(s=>{
+  if(!s)return '<div class="slide"><div class="im">Add images to assets/slider</div></div>';
+  const o=typeof s==='string'?{src:s,name:''}:s;
+  const el=document.createElement('div');el.className='slide';
+  const im=document.createElement('div');im.className='im';
+  const img=new Image();img.src='assets/slider/'+o.src;img.alt=o.name||'';im.appendChild(img);el.appendChild(im);
+  if(o.name){const sp=document.createElement('span');sp.textContent=o.name;el.appendChild(sp)}
+  return el.outerHTML}).join('');
+document.getElementById('track').innerHTML=html+html;
+</script></body></html>

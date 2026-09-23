@@ -1,0 +1,43 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<title>Owner Inbox | Yumix Games</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+h1{font-size:1.8rem;font-weight:900;letter-spacing:-.04em}
+.row{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;align-items:center}.row input{max-width:280px}
+.list{display:flex;flex-direction:column;gap:10px}
+.m .h{display:flex;gap:10px;align-items:center;font-size:13px;font-weight:800;margin-bottom:6px}
+.m .h span{color:#aaa;font-weight:600;margin-left:auto}
+.m .h button{border:2px solid #e0e0e0;background:#fff;border-radius:8px;padding:4px 10px;font:700 11px Inter,sans-serif;cursor:pointer}
+.m .h button:hover{background:#c0392b;border-color:#c0392b;color:#fff}
+.m p{line-height:1.5;word-break:break-word;white-space:pre-wrap;color:#333}
+.note{color:var(--mut);font-weight:600;padding:20px 0}.err{color:#c0392b;font-weight:600}
+</style></head><body>
+<nav class="top"><a class="logo" href="index.html">Yumix<b>.</b>Games</a><div class="links"><a href="index.html">Home</a></div></nav>
+<main class="wrap"><h1>Owner Inbox</h1>
+<div class="row" id="login"><input id="pw" type="password" placeholder="Owner password"><button class="btn dark" id="in">Unlock</button></div>
+<div class="row" id="tools" hidden><button class="btn" id="ref">Refresh</button><button class="btn" id="clr">Clear all</button><span class="note" id="n"></span></div>
+<div class="err" id="err"></div><div class="list" id="list"></div></main>
+<script>
+const $=i=>document.getElementById(i);let pw=sessionStorage.getItem('ym-pw')||'';
+const H=()=>({'x-owner-password':pw});
+async function load(){
+  $('err').textContent='';
+  try{const r=await fetch('/api/messages',{headers:H()});const j=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(j.error||'Error');
+    $('login').hidden=true;$('tools').hidden=false;$('n').textContent=j.messages.length+' messages';
+    const L=$('list');L.textContent='';
+    if(!j.messages.length){const d=document.createElement('div');d.className='note';d.textContent='No messages yet.';L.appendChild(d)}
+    j.messages.forEach(m=>{const c=document.createElement('div');c.className='card m';
+      const h=document.createElement('div');h.className='h';const n=document.createElement('b');n.textContent=m.name;
+      const s=document.createElement('span');s.textContent=new Date(m.t).toLocaleString();
+      const b=document.createElement('button');b.textContent='Delete';b.onclick=async()=>{await fetch('/api/messages?id='+m.id,{method:'DELETE',headers:H()});load()};
+      h.append(n,s,b);const p=document.createElement('p');p.textContent=m.text;c.append(h,p);L.appendChild(c)});
+  }catch(e){$('login').hidden=false;$('tools').hidden=true;$('err').textContent=e.message;sessionStorage.removeItem('ym-pw')}
+}
+$('in').onclick=()=>{pw=$('pw').value;sessionStorage.setItem('ym-pw',pw);load()};
+$('pw').addEventListener('keydown',e=>{if(e.key==='Enter')$('in').click()});
+$('ref').onclick=load;
+$('clr').onclick=async()=>{if(confirm('Delete ALL messages?')){await fetch('/api/messages?id=all',{method:'DELETE',headers:H()});load()}};
+if(pw)load();setInterval(()=>{if(pw&&!$('tools').hidden)load()},20000);
+</script></body></html>
