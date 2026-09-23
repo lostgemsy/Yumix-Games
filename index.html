@@ -1,4 +1,8 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Yumix Games</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
@@ -20,30 +24,184 @@
 .slide img{width:100%;height:100%;object-fit:cover;border-radius:16px}
 .slide span{display:block;margin-top:8px;font-size:13px;font-weight:700}
 footer{text-align:center;color:#aaa;font-size:.8rem;padding:48px 0 32px;font-weight:600}
-</style></head><body>
-<nav class="top"><a class="logo" href="index.html">Yumix<b>.</b>Games</a>
-<div class="links"><a class="on" href="index.html">Home</a><a href="games.html">Games</a><a href="sendMSGtoowner.html">Message Owner</a></div></nav>
-<header class="hero"><h1>Yumix <b>Games</b></h1>
-<p>Jump into a game in one click. No downloads, no waiting, just play.</p>
-<div class="cta"><a class="btn dark" href="games.html">Play Games</a><a class="btn acc" href="sendMSGtoowner.html">Message the Owner</a></div></header>
-<section class="cred"><h2>Thank you to our helpers</h2><p>The people who made this site possible.</p>
-<div class="slider"><div class="track" id="track"></div></div></section>
+
+/* ============ GAMES GRID ============ */
+.games-section{
+  max-width:1200px;
+  margin:20px auto 0;
+  padding:0 20px;
+}
+.games-section-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:16px;
+  flex-wrap:wrap;
+  gap:10px;
+}
+.games-section-head h2{
+  font-size:1.4rem;
+  font-weight:800;
+  letter-spacing:-.02em;
+}
+.games-section-head a{
+  font-size:13px;
+  font-weight:700;
+  color:#111;
+  text-decoration:none;
+  border:2px solid var(--line);
+  padding:8px 16px;
+  border-radius:12px;
+  transition:all .2s ease;
+}
+.games-section-head a:hover{
+  background:#111;
+  color:#fff;
+  border-color:#111;
+}
+.games-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:16px;
+  margin-bottom:40px;
+}
+.gl-card{
+  display:flex;
+  flex-direction:column;
+  padding:8px;
+  border-radius:14px;
+  background:#fff;
+  border:2px solid var(--line);
+  text-decoration:none;
+  color:#111;
+  transition:all .25s cubic-bezier(.2,.8,.2,1);
+  cursor:pointer;
+}
+.gl-card:hover{
+  border-color:#111;
+  transform:translateY(-5px);
+  box-shadow:0 15px 35px rgba(0,0,0,.1);
+}
+.gl-art{
+  position:relative;
+  display:block;
+  aspect-ratio:1;
+  overflow:hidden;
+  border-radius:10px;
+  background:#f0f0f0;
+  margin-bottom:8px;
+}
+.gl-art img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transition:transform .35s ease;
+}
+.gl-card:hover .gl-art img{transform:scale(1.05);}
+.gl-play{
+  position:absolute;
+  left:8px;right:8px;bottom:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:30px;
+  border-radius:7px;
+  background:#111;
+  color:#fff;
+  font-weight:700;
+  font-size:12px;
+  opacity:0;
+  transform:translateY(6px);
+  transition:all .2s ease;
+}
+.gl-card:hover .gl-play{opacity:1;transform:translateY(0);}
+.gl-card h3{
+  margin:0 3px 3px;
+  font-size:13px;
+  font-weight:700;
+  text-align:left;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  letter-spacing:-.01em;
+}
+.gl-meta{
+  text-align:center;
+  color:#888;
+  font-size:13px;
+  font-weight:600;
+  margin-bottom:20px;
+}
+@media (max-width:600px){
+  .games-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .gl-card{padding:6px;border-radius:11px;}
+  .gl-card h3{font-size:11.5px;}
+  .gl-play{height:26px;font-size:10.5px;}
+}
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <a class="logo" href="index.html">Yumix<b>.</b>Games</a>
+  <div class="links">
+    <a class="on" href="index.html">Home</a>
+    <a href="games.html">Games</a>
+    <a href="sendMSGtoowner.html">Message Owner</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <h1>Yumix <b>Games</b></h1>
+  <p>Jump into a game in one click. No downloads, no waiting, just play.</p>
+  <div class="cta">
+    <a class="btn dark" href="games.html">Play Games</a>
+    <a class="btn acc" href="sendMSGtoowner.html">Message the Owner</a>
+  </div>
+</header>
+
+<!-- ============ GAMES PREVIEW GRID ============ -->
+<section class="games-section">
+  <div class="games-section-head">
+    <h2>Popular games</h2>
+    <a href="games.html">See all →</a>
+  </div>
+  <p class="gl-meta" id="gl-count"></p>
+  <div class="games-grid" id="gameGallery"></div>
+</section>
+
+<section class="cred">
+  <h2>Thank you to our helpers</h2>
+  <p>The people who made this site possible.</p>
+  <div class="slider"><div class="track" id="track"></div></div>
+</section>
+
 <footer>Made by the Yumix team</footer>
+
+<!-- Games loader -->
+<script src="games.js"></script>
+
 <script>
-/* Add your credit images to assets/slider/ then list them here.
-   Use a filename string or {src:'file.png', name:'Helper name'}. */
-const SLIDES=[
+/* Credits slider */
+const SLIDES = [
   // 'helper1.png',
   // {src:'helper2.png', name:'Alex'},
 ];
-const items=SLIDES.length?SLIDES:Array.from({length:8},()=>null);
-const html=items.map(s=>{
-  if(!s)return '<div class="slide"><div class="im">Add images to assets/slider</div></div>';
-  const o=typeof s==='string'?{src:s,name:''}:s;
-  const el=document.createElement('div');el.className='slide';
-  const im=document.createElement('div');im.className='im';
-  const img=new Image();img.src='assets/slider/'+o.src;img.alt=o.name||'';im.appendChild(img);el.appendChild(im);
-  if(o.name){const sp=document.createElement('span');sp.textContent=o.name;el.appendChild(sp)}
-  return el.outerHTML}).join('');
-document.getElementById('track').innerHTML=html+html;
-</script></body></html>
+const items = SLIDES.length ? SLIDES : Array.from({length:8}, () => null);
+const html = items.map(s => {
+  if (!s) return '<div class="slide"><div class="im">Add images to assets/slider</div></div>';
+  const o = typeof s === 'string' ? {src:s, name:''} : s;
+  const el = document.createElement('div'); el.className = 'slide';
+  const im = document.createElement('div'); im.className = 'im';
+  const img = new Image(); img.src = 'assets/slider/' + o.src; img.alt = o.name || '';
+  im.appendChild(img); el.appendChild(im);
+  if (o.name) { const sp = document.createElement('span'); sp.textContent = o.name; el.appendChild(sp); }
+  return el.outerHTML;
+}).join('');
+document.getElementById('track').innerHTML = html + html;
+</script>
+
+</body>
+</html>
