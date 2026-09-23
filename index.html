@@ -4,92 +4,269 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Yumix Games</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 <style>
-.hero{text-align:center;padding:72px 20px 40px}
-.hero h1{font-size:clamp(3rem,11vw,6.5rem);font-weight:900;letter-spacing:-.06em;line-height:1}
-.hero h1 b{color:var(--acc)}
-.hero p{max-width:560px;margin:18px auto 30px;color:#555;font-weight:500;line-height:1.6}
-.cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
-.cred{margin-top:56px;text-align:center}
-.cred h2{font-size:1.1rem;font-weight:800;letter-spacing:-.02em}
-.cred p{color:var(--mut);font-size:.9rem;margin:6px 0 22px}
-.slider{overflow:hidden;-webkit-mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
-.track{display:flex;gap:18px;width:max-content;animation:slide 30s linear infinite}
-.slider:hover .track{animation-play-state:paused}
-@keyframes slide{to{transform:translateX(-50%)}}
-.slide{width:170px;flex:none;text-align:center}
-.slide .im{width:170px;height:170px;border-radius:18px;background:#eee center/cover;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;color:#bbb;font-weight:700;font-size:12px;padding:10px}
-.slide img{width:100%;height:100%;object-fit:cover;border-radius:16px}
-.slide span{display:block;margin-top:8px;font-size:13px;font-weight:700}
-footer{text-align:center;color:#aaa;font-size:.8rem;padding:48px 0 32px;font-weight:600}
+/* ============================================
+   RESET & GLOBAL
+   ============================================ */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;min-height:100%;overflow-x:hidden}
 
-/* ============ GAMES GRID ============ */
+body{
+  background:#050505;
+  color:#f5f5f5;
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  position:relative;
+  min-height:100vh;
+}
+
+/* Ambient glow behind everything */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,.045) 0%, transparent 45%),
+    radial-gradient(circle at 15% 85%, rgba(255,255,255,.025) 0%, transparent 40%),
+    radial-gradient(circle at 85% 15%, rgba(255,255,255,.025) 0%, transparent 40%);
+  z-index:0;
+  pointer-events:none;
+}
+
+/* Subtle grain */
+body::after{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:.025;
+  z-index:0;
+  pointer-events:none;
+}
+
+/* ============================================
+   NAV
+   ============================================ */
+.top{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  z-index:100;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:18px 32px;
+  background:rgba(5,5,5,.7);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,.06);
+  animation:navIn .5s ease both;
+}
+@keyframes navIn{
+  from{opacity:0;transform:translateY(-20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.logo{
+  font-size:18px;
+  font-weight:900;
+  letter-spacing:-.04em;
+  color:#fff;
+  text-decoration:none;
+}
+.logo b{color:#888}
+.links{
+  display:flex;
+  gap:6px;
+}
+.links a{
+  padding:9px 16px;
+  border-radius:10px;
+  color:rgba(255,255,255,.6);
+  text-decoration:none;
+  font-size:13px;
+  font-weight:600;
+  transition:all .2s ease;
+}
+.links a:hover{
+  color:#fff;
+  background:rgba(255,255,255,.06);
+}
+.links a.on{
+  color:#fff;
+  background:rgba(255,255,255,.1);
+}
+
+/* ============================================
+   HERO
+   ============================================ */
+.hero{
+  position:relative;
+  z-index:1;
+  text-align:center;
+  padding:130px 20px 40px;
+  animation:heroIn .9s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes heroIn{
+  from{opacity:0;transform:translateY(40px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.hero h1{
+  font-size:clamp(3rem,11vw,6.5rem);
+  font-weight:900;
+  letter-spacing:-.06em;
+  line-height:1;
+  color:#fff;
+  text-shadow:0 0 60px rgba(255,255,255,.08);
+}
+.hero h1 b{
+  background:linear-gradient(180deg,#fff 0%,#666 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.hero p{
+  max-width:560px;
+  margin:18px auto 34px;
+  color:rgba(255,255,255,.5);
+  font-weight:500;
+  line-height:1.65;
+  font-size:15px;
+}
+.cta{
+  display:flex;
+  gap:12px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:14px 28px;
+  border-radius:14px;
+  font-family:inherit;
+  font-size:14px;
+  font-weight:700;
+  text-decoration:none;
+  cursor:pointer;
+  border:2px solid transparent;
+  transition:all .25s cubic-bezier(.2,.8,.2,1);
+  letter-spacing:-.01em;
+}
+.btn.dark{
+  background:#fff;
+  color:#000;
+  border-color:#fff;
+}
+.btn.dark:hover{
+  background:#e5e5e5;
+  border-color:#e5e5e5;
+  transform:translateY(-3px);
+  box-shadow:0 15px 40px rgba(255,255,255,.15);
+}
+.btn.acc{
+  background:transparent;
+  color:#fff;
+  border-color:rgba(255,255,255,.15);
+}
+.btn.acc:hover{
+  background:rgba(255,255,255,.06);
+  border-color:rgba(255,255,255,.3);
+  transform:translateY(-3px);
+}
+
+/* ============================================
+   GAMES SECTION
+   ============================================ */
 .games-section{
-  max-width:1200px;
-  margin:20px auto 0;
-  padding:0 20px;
+  position:relative;
+  z-index:1;
+  max-width:1300px;
+  margin:40px auto 0;
+  padding:0 28px;
+  animation:sectionIn .8s .2s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes sectionIn{
+  from{opacity:0;transform:translateY(30px)}
+  to{opacity:1;transform:translateY(0)}
 }
 .games-section-head{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  margin-bottom:16px;
+  margin-bottom:20px;
   flex-wrap:wrap;
-  gap:10px;
+  gap:12px;
 }
 .games-section-head h2{
-  font-size:1.4rem;
+  font-size:1.5rem;
   font-weight:800;
-  letter-spacing:-.02em;
-}
-.games-section-head a{
-  font-size:13px;
-  font-weight:700;
-  color:#111;
-  text-decoration:none;
-  border:2px solid var(--line);
-  padding:8px 16px;
-  border-radius:12px;
-  transition:all .2s ease;
-}
-.games-section-head a:hover{
-  background:#111;
+  letter-spacing:-.03em;
   color:#fff;
-  border-color:#111;
 }
+.gl-meta{
+  color:rgba(255,255,255,.4);
+  font-size:13px;
+  font-weight:600;
+  margin-bottom:20px;
+}
+
+/* ============================================
+   GAME GRID
+   ============================================ */
 .games-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
-  gap:16px;
-  margin-bottom:40px;
+  grid-template-columns:repeat(auto-fill,minmax(165px,1fr));
+  gap:20px;
+  margin-bottom:60px;
 }
 .gl-card{
   display:flex;
   flex-direction:column;
-  padding:8px;
-  border-radius:14px;
-  background:#fff;
-  border:2px solid var(--line);
+  padding:9px;
+  border-radius:16px;
+  background:rgba(255,255,255,.03);
+  border:1.5px solid rgba(255,255,255,.08);
   text-decoration:none;
-  color:#111;
-  transition:all .25s cubic-bezier(.2,.8,.2,1);
+  color:#fff;
   cursor:pointer;
+  transition:all .3s cubic-bezier(.2,.8,.2,1);
+  position:relative;
+  overflow:hidden;
+  animation:cardIn .5s ease both;
+  animation-delay:calc(var(--i,0) * 12ms);
 }
+@keyframes cardIn{
+  from{opacity:0;transform:translateY(15px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.gl-card::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg, rgba(255,255,255,.06), transparent 60%);
+  opacity:0;
+  transition:opacity .3s ease;
+  pointer-events:none;
+}
+.gl-card:hover::before{opacity:1}
 .gl-card:hover{
-  border-color:#111;
-  transform:translateY(-5px);
-  box-shadow:0 15px 35px rgba(0,0,0,.1);
+  border-color:rgba(255,255,255,.35);
+  transform:translateY(-8px) scale(1.02);
+  box-shadow:
+    0 24px 50px rgba(0,0,0,.6),
+    0 0 30px rgba(255,255,255,.04);
 }
 .gl-art{
   position:relative;
   display:block;
   aspect-ratio:1;
   overflow:hidden;
-  border-radius:10px;
-  background:#f0f0f0;
-  margin-bottom:8px;
+  border-radius:11px;
+  background:#111;
+  margin-bottom:10px;
 }
 .gl-art img{
   position:absolute;
@@ -97,48 +274,245 @@ footer{text-align:center;color:#aaa;font-size:.8rem;padding:48px 0 32px;font-wei
   width:100%;
   height:100%;
   object-fit:cover;
-  transition:transform .35s ease;
+  transition:transform .5s cubic-bezier(.2,.8,.2,1), filter .3s ease;
 }
-.gl-card:hover .gl-art img{transform:scale(1.05);}
+.gl-card:hover .gl-art img{
+  transform:scale(1.08);
+  filter:brightness(1.1);
+}
 .gl-play{
   position:absolute;
-  left:8px;right:8px;bottom:8px;
+  left:10px;right:10px;bottom:10px;
   display:flex;
   align-items:center;
   justify-content:center;
-  height:30px;
-  border-radius:7px;
-  background:#111;
-  color:#fff;
-  font-weight:700;
-  font-size:12px;
+  height:34px;
+  border-radius:9px;
+  background:rgba(255,255,255,.95);
+  color:#000;
+  font-weight:800;
+  font-size:12.5px;
+  letter-spacing:.02em;
   opacity:0;
-  transform:translateY(6px);
-  transition:all .2s ease;
+  transform:translateY(10px);
+  transition:all .3s cubic-bezier(.2,.8,.2,1);
 }
-.gl-card:hover .gl-play{opacity:1;transform:translateY(0);}
+.gl-card:hover .gl-play{
+  opacity:1;
+  transform:translateY(0);
+}
 .gl-card h3{
   margin:0 3px 3px;
-  font-size:13px;
+  font-size:13.5px;
   font-weight:700;
   text-align:left;
   overflow:hidden;
   text-overflow:ellipsis;
   white-space:nowrap;
   letter-spacing:-.01em;
+  color:#fff;
 }
-.gl-meta{
+
+/* ============================================
+   CREDITS
+   ============================================ */
+.cred{
+  position:relative;
+  z-index:1;
+  margin-top:20px;
   text-align:center;
-  color:#888;
-  font-size:13px;
-  font-weight:600;
-  margin-bottom:20px;
+  padding:40px 20px 0;
 }
-@media (max-width:600px){
-  .games-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
-  .gl-card{padding:6px;border-radius:11px;}
-  .gl-card h3{font-size:11.5px;}
-  .gl-play{height:26px;font-size:10.5px;}
+.cred h2{
+  font-size:1.15rem;
+  font-weight:800;
+  letter-spacing:-.02em;
+  color:#fff;
+}
+.cred p{
+  color:rgba(255,255,255,.4);
+  font-size:.9rem;
+  margin:6px 0 24px;
+}
+.slider{
+  overflow:hidden;
+  -webkit-mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+  mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+}
+.track{
+  display:flex;
+  gap:18px;
+  width:max-content;
+  animation:slide 30s linear infinite;
+}
+.slider:hover .track{animation-play-state:paused}
+@keyframes slide{to{transform:translateX(-50%)}}
+.slide{width:170px;flex:none;text-align:center}
+.slide .im{
+  width:170px;height:170px;
+  border-radius:18px;
+  background:rgba(255,255,255,.04);
+  border:1.5px solid rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(255,255,255,.3);
+  font-weight:700;font-size:12px;
+  padding:10px;
+}
+.slide img{width:100%;height:100%;object-fit:cover;border-radius:16px}
+.slide span{
+  display:block;
+  margin-top:8px;
+  font-size:13px;
+  font-weight:700;
+  color:rgba(255,255,255,.75);
+}
+footer{
+  position:relative;
+  z-index:1;
+  text-align:center;
+  color:rgba(255,255,255,.25);
+  font-size:.8rem;
+  padding:48px 0 32px;
+  font-weight:600;
+}
+
+/* ============================================
+   GAME OVERLAY (iframe loader)
+   ============================================ */
+.game-overlay{
+  position:fixed;
+  inset:0;
+  z-index:9000;
+  background:#000;
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .35s ease, visibility .35s ease;
+}
+.game-overlay.active{
+  opacity:1;
+  visibility:visible;
+}
+.game-overlay iframe{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:0;
+  background:#000;
+}
+
+/* Overlay control bar */
+.overlay-bar{
+  position:fixed;
+  top:14px;
+  left:50%;
+  transform:translateX(-50%) translateY(-90px);
+  z-index:9100;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:7px;
+  background:rgba(0,0,0,.75);
+  border:1.5px solid rgba(255,255,255,.12);
+  border-radius:15px;
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  box-shadow:0 8px 32px rgba(0,0,0,.6);
+  opacity:0;
+  transition:opacity .3s ease, transform .4s cubic-bezier(.2,.8,.2,1);
+}
+.game-overlay.active ~ .overlay-bar,
+.overlay-bar.visible{
+  transform:translateX(-50%) translateY(0);
+  opacity:.35;
+}
+.overlay-bar.visible:hover{
+  opacity:1;
+  transform:translateX(-50%) translateY(-2px);
+}
+.obar-btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  height:38px;
+  padding:0 14px;
+  border:1.5px solid transparent;
+  border-radius:10px;
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  font-family:inherit;
+  font-size:12.5px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all .2s ease;
+  white-space:nowrap;
+}
+.obar-btn:hover{
+  background:rgba(255,255,255,.16);
+  border-color:rgba(255,255,255,.25);
+  transform:translateY(-2px);
+}
+.obar-btn:active{transform:translateY(0) scale(.96)}
+.obar-btn.close:hover{
+  background:#dc2626;
+  border-color:#dc2626;
+}
+.obar-btn svg{
+  width:16px;height:16px;
+  stroke:currentColor;fill:none;
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+}
+.obar-divider{
+  width:1px;height:22px;
+  background:rgba(255,255,255,.15);
+  margin:0 3px;
+}
+.obar-title{
+  padding:0 10px;
+  color:#fff;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:-.01em;
+  max-width:180px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width:720px){
+  .top{padding:14px 16px}
+  .links a{padding:8px 12px;font-size:12px}
+  .logo{font-size:16px}
+
+  .hero{padding:110px 16px 30px}
+  .hero p{font-size:14px}
+  .btn{padding:12px 22px;font-size:13px}
+
+  .games-section{padding:0 16px}
+  .games-grid{
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+  }
+  .gl-card{padding:7px;border-radius:13px}
+  .gl-card h3{font-size:12px}
+  .gl-play{height:30px;font-size:11px}
+
+  .overlay-bar{top:10px;gap:4px;padding:5px;border-radius:12px}
+  .obar-btn{height:34px;padding:0 10px;font-size:11.5px}
+  .obar-btn span{display:none}
+  .obar-btn svg{width:17px;height:17px}
+  .obar-title,.obar-divider{display:none}
+}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    transition-duration:.001ms !important;
+  }
 }
 </style>
 </head>
@@ -148,7 +522,6 @@ footer{text-align:center;color:#aaa;font-size:.8rem;padding:48px 0 32px;font-wei
   <a class="logo" href="index.html">Yumix<b>.</b>Games</a>
   <div class="links">
     <a class="on" href="index.html">Home</a>
-    <a href="games.html">Games</a>
     <a href="sendMSGtoowner.html">Message Owner</a>
   </div>
 </nav>
@@ -157,16 +530,14 @@ footer{text-align:center;color:#aaa;font-size:.8rem;padding:48px 0 32px;font-wei
   <h1>Yumix <b>Games</b></h1>
   <p>Jump into a game in one click. No downloads, no waiting, just play.</p>
   <div class="cta">
-    <a class="btn dark" href="games.html">Play Games</a>
     <a class="btn acc" href="sendMSGtoowner.html">Message the Owner</a>
   </div>
 </header>
 
-<!-- ============ GAMES PREVIEW GRID ============ -->
+<!-- GAMES GRID -->
 <section class="games-section">
   <div class="games-section-head">
-    <h2>Popular games</h2>
-    <a href="games.html">See all →</a>
+    <h2>All games</h2>
   </div>
   <p class="gl-meta" id="gl-count"></p>
   <div class="games-grid" id="gameGallery"></div>
@@ -180,11 +551,205 @@ footer{text-align:center;color:#aaa;font-size:.8rem;padding:48px 0 32px;font-wei
 
 <footer>Made by the Yumix team</footer>
 
+<!-- ============================================
+     GAME OVERLAY (iframe loader)
+     ============================================ -->
+<div class="game-overlay" id="game-overlay">
+  <iframe
+    id="overlay-frame"
+    src="about:blank"
+    allowfullscreen
+    allow="autoplay; fullscreen; gamepad; clipboard-write; accelerometer; gyroscope"
+    referrerpolicy="no-referrer"
+  ></iframe>
+</div>
+
+<div class="overlay-bar" id="overlay-bar">
+  <button class="obar-btn close" id="obar-close" title="Close game">
+    <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    <span>Close</span>
+  </button>
+
+  <div class="obar-divider"></div>
+  <span class="obar-title" id="obar-title">Game</span>
+  <div class="obar-divider"></div>
+
+  <button class="obar-btn" id="obar-reload" title="Reload">
+    <svg viewBox="0 0 24 24">
+      <path d="M21 12a9 9 0 1 1-3-6.7"/>
+      <polyline points="21 3 21 9 15 9"/>
+    </svg>
+    <span>Reload</span>
+  </button>
+
+  <button class="obar-btn" id="obar-fullscreen" title="Fullscreen">
+    <svg viewBox="0 0 24 24">
+      <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+    </svg>
+    <span>Fullscreen</span>
+  </button>
+
+  <button class="obar-btn" id="obar-newtab" title="Open in new tab">
+    <svg viewBox="0 0 24 24">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+      <path d="M15 3h6v6"/>
+      <path d="M10 14L21 3"/>
+    </svg>
+    <span>New tab</span>
+  </button>
+</div>
+
 <!-- Games loader -->
 <script src="games.js"></script>
 
+<!-- ============================================
+     OVERLAY LOADER + CLICK HANDLER
+     ============================================ -->
 <script>
-/* Credits slider */
+(function () {
+  "use strict";
+
+  var overlay = document.getElementById("game-overlay");
+  var frame = document.getElementById("overlay-frame");
+  var bar = document.getElementById("overlay-bar");
+  var barTitle = document.getElementById("obar-title");
+  var closeBtn = document.getElementById("obar-close");
+  var reloadBtn = document.getElementById("obar-reload");
+  var fsBtn = document.getElementById("obar-fullscreen");
+  var newtabBtn = document.getElementById("obar-newtab");
+  var grid = document.getElementById("gameGallery");
+
+  var currentUrl = "";
+  var currentName = "";
+
+  /* ============================================
+     OPEN / CLOSE
+     ============================================ */
+  function openGame(url, name) {
+    currentUrl = url;
+    currentName = name || "Game";
+    barTitle.textContent = currentName;
+    document.title = currentName + " — Yumix Games";
+
+    frame.src = url;
+    overlay.classList.add("active");
+    document.body.style.overflow = "hidden";
+
+    // Show control bar after a short delay
+    setTimeout(function () {
+      bar.classList.add("visible");
+    }, 400);
+  }
+
+  function closeGame() {
+    overlay.classList.remove("active");
+    bar.classList.remove("visible");
+    frame.src = "about:blank";
+    document.body.style.overflow = "";
+    document.title = "Yumix Games";
+    currentUrl = "";
+    currentName = "";
+  }
+
+  /* ============================================
+     INTERCEPT CLICKS ON GAME CARDS
+     games.js renders them into #gameGallery,
+     so we catch them with event delegation.
+     ============================================ */
+  if (grid) {
+    grid.addEventListener("click", function (e) {
+      var card = e.target.closest(".gl-card");
+      if (!card) return;
+
+      // Try to read the game URL + name from the card
+      var href = card.getAttribute("href") || "";
+      var titleEl = card.querySelector("h3");
+      var title = titleEl ? titleEl.textContent : "Game";
+
+      var gameUrl = "";
+      var gameName = title;
+
+      // Parse href formats:
+      //   game.html?url=...&name=...
+      //   games/<folder>/index.html
+      //   Games/<folder>/index.html
+      if (href.indexOf("game.html") === 0 || href.indexOf("game.html?") === 0) {
+        try {
+          var q = href.split("?")[1] || "";
+          var params = new URLSearchParams(q);
+          gameUrl = params.get("url") || "";
+          gameName = params.get("name") || title;
+        } catch (err) {}
+      } else if (href) {
+        gameUrl = href;
+      }
+
+      if (!gameUrl) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      openGame(gameUrl, gameName);
+    }, true);
+  }
+
+  /* ============================================
+     CONTROL BAR ACTIONS
+     ============================================ */
+  closeBtn.addEventListener("click", closeGame);
+
+  reloadBtn.addEventListener("click", function () {
+    if (!currentUrl) return;
+    var src = currentUrl;
+    frame.src = "about:blank";
+    setTimeout(function () { frame.src = src; }, 80);
+  });
+
+  fsBtn.addEventListener("click", function () {
+    if (!document.fullscreenElement) {
+      var el = document.documentElement;
+      var req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+      if (req) req.call(el).catch(function () {});
+    } else {
+      var exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+      if (exit) exit.call(document);
+    }
+  });
+
+  newtabBtn.addEventListener("click", function () {
+    if (currentUrl) window.open(currentUrl, "_blank", "noopener");
+  });
+
+  /* ============================================
+     KEYBOARD SHORTCUTS
+     ============================================ */
+  document.addEventListener("keydown", function (e) {
+    if (!overlay.classList.contains("active")) return;
+
+    var tag = (e.target.tagName || "").toLowerCase();
+    if (tag === "input" || tag === "textarea") return;
+
+    if (e.key === "Escape") {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        closeGame();
+      }
+    }
+    if (e.key === "f" && !e.ctrlKey && !e.metaKey) {
+      fsBtn.click();
+    }
+    if (e.key === "r" && !e.ctrlKey && !e.metaKey) {
+      reloadBtn.click();
+    }
+  });
+
+})();
+</script>
+
+<!-- ============================================
+     CREDITS SLIDER
+     ============================================ -->
+<script>
 const SLIDES = [
   // 'helper1.png',
   // {src:'helper2.png', name:'Alex'},

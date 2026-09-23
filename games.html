@@ -1,37 +1,129 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Games | Yumix Games</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 <style>
 h1{font-size:2.2rem;font-weight:900;letter-spacing:-.04em}
 .bar{display:flex;gap:14px;align-items:center;margin:16px 0 24px;flex-wrap:wrap}
-.bar input{max-width:420px}.cnt{color:var(--mut);font-weight:600;font-size:14px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px}
-.g{background:#fff;border:2px solid var(--line);border-radius:16px;padding:10px;transition:.2s}
-.g:hover{border-color:var(--ink);transform:translateY(-4px);box-shadow:0 12px 28px #0002}
-.g img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:11px;background:#eee;display:block}
-.g h3{font-size:.9rem;margin:10px 2px 2px;font-weight:700}
-.empty{grid-column:1/-1;text-align:center;color:var(--mut);padding:60px 10px;font-weight:600}
-</style></head><body>
-<nav class="top"><a class="logo" href="index.html">Yumix<b>.</b>Games</a>
-<div class="links"><a href="index.html">Home</a><a class="on" href="games.html">Games</a><a href="sendMSGtoowner.html">Message Owner</a></div></nav>
-<main class="wrap"><h1>Games</h1>
-<div class="bar"><input id="q" type="search" placeholder="Search games..." autocomplete="off"><span class="cnt" id="cnt"></span></div>
-<div class="grid" id="grid"></div></main>
+.bar input{max-width:420px}
+.cnt{color:var(--mut);font-weight:600;font-size:14px}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:16px;
+}
+.g{
+  background:#fff;
+  border:2px solid var(--line);
+  border-radius:16px;
+  padding:10px;
+  transition:.2s;
+  text-decoration:none;
+  color:inherit;
+  display:flex;
+  flex-direction:column;
+}
+.g:hover{
+  border-color:var(--ink);
+  transform:translateY(-4px);
+  box-shadow:0 12px 28px #0002;
+}
+.g img{
+  width:100%;
+  aspect-ratio:1;
+  object-fit:cover;
+  border-radius:11px;
+  background:#eee;
+  display:block;
+}
+.g h3{
+  font-size:.9rem;
+  margin:10px 2px 2px;
+  font-weight:700;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.empty{
+  grid-column:1/-1;
+  text-align:center;
+  color:var(--mut);
+  padding:60px 10px;
+  font-weight:600;
+}
+</style>
+</head>
+<body>
+<nav class="top">
+  <a class="logo" href="index.html">Yumix<b>.</b>Games</a>
+  <div class="links">
+    <a href="index.html">Home</a>
+    <a class="on" href="games.html">Games</a>
+    <a href="sendMSGtoowner.html">Message Owner</a>
+  </div>
+</nav>
+<main class="wrap">
+  <h1>Games</h1>
+  <div class="bar">
+    <input id="q" type="search" placeholder="Search games..." autocomplete="off">
+    <span class="cnt" id="cnt"></span>
+  </div>
+  <div class="grid" id="gameGallery"></div>
+</main>
+
 <script src="games.js"></script>
 <script>
-const nice=f=>f.replace(/[-_]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
-const grid=document.getElementById('grid'),cnt=document.getElementById('cnt');
-function draw(){
-  const q=document.getElementById('q').value.trim().toLowerCase();
-  const list=GAMES.filter(g=>(g.name||nice(g.folder)).toLowerCase().includes(q));
-  grid.textContent='';cnt.textContent=GAMES.length+' games';
-  if(!list.length){const d=document.createElement('div');d.className='empty';d.textContent=GAMES.length?'No games found.':'No games yet. Add some in games.js!';grid.appendChild(d);return}
-  list.forEach(g=>{
-    const a=document.createElement('a');a.className='g';a.href='game.html?g='+encodeURIComponent(g.folder);
-    const i=new Image();i.src='images/'+g.image;i.alt='';i.loading='lazy';
-    const h=document.createElement('h3');h.textContent=g.name||nice(g.folder);
-    a.append(i,h);grid.appendChild(a)});
-}
-document.getElementById('q').addEventListener('input',draw);draw();
-</script></body></html>
+/* Search + count — works with whatever games.js rendered into #gameGallery */
+(function () {
+  var grid = document.getElementById('gameGallery');
+  var input = document.getElementById('q');
+  var cnt = document.getElementById('cnt');
+  if (!grid) return;
+
+  // Snapshot the cards games.js created
+  var cards = Array.prototype.slice.call(grid.querySelectorAll('.gl-card'));
+
+  // Apply the grid classes expected by games.html styles
+  cards.forEach(function (card) {
+    card.classList.add('g');
+    // Move href to game.html format if it isn't already
+    var href = card.getAttribute('href') || '';
+    if (href && href.indexOf('game.html') !== 0) {
+      var folder = card.getAttribute('data-folder');
+      var title = card.querySelector('h3') ? card.querySelector('h3').textContent : 'Game';
+      if (folder) {
+        card.href = 'game.html?url=' + encodeURIComponent('Games/' + folder + '/index.html') +
+                    '&name=' + encodeURIComponent(title);
+      }
+    }
+  });
+
+  function update() {
+    var q = input.value.trim().toLowerCase();
+    var shown = 0;
+
+    cards.forEach(function (card) {
+      var name = (card.querySelector('h3') ? card.querySelector('h3').textContent : '').toLowerCase();
+      var match = !q || name.indexOf(q) !== -1;
+      card.style.display = match ? '' : 'none';
+      if (match) shown++;
+    });
+
+    cnt.textContent = q
+      ? shown + ' of ' + cards.length + ' games'
+      : cards.length + ' games';
+  }
+
+  input.addEventListener('input', update);
+
+  // Wait one tick so games.js has fully rendered before we count
+  setTimeout(update, 50);
+  update();
+})();
+</script>
+</body>
+</html>

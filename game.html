@@ -1,20 +1,625 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Play | Yumix Games</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css">
-<style>body{display:flex;flex-direction:column;height:100vh}
-.bar{display:flex;align-items:center;gap:10px;padding:10px 18px;background:#fff;border-bottom:2px solid var(--line)}
-.bar h1{flex:1;font-size:1rem;font-weight:800}.bar .btn{padding:9px 16px;font-size:13px;border-radius:10px}
-iframe{flex:1;border:0;width:100%;background:#000}</style></head><body>
-<div class="bar"><a class="btn" href="games.html">Back</a><h1 id="t">Loading...</h1>
-<button class="btn" id="rl">Reload</button><button class="btn dark" id="fs">Fullscreen</button></div>
-<iframe id="f" allowfullscreen allow="autoplay; fullscreen; gamepad"></iframe>
-<script src="games.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Playing — Yumix Games</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #0a0a0a;
+    color: #fff;
+}
+
+/* ============================================
+   IFRAME
+   ============================================ */
+#game-frame {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #000;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+#game-frame.active {
+    opacity: 1;
+}
+
+/* ============================================
+   LOADING SCREEN
+   ============================================ */
+#loader {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 26px;
+    background: #0a0a0a;
+    background-image:
+        radial-gradient(circle at 50% 40%, rgba(255,255,255,.04) 0%, transparent 55%),
+        radial-gradient(circle at 20% 80%, rgba(255,255,255,.02) 0%, transparent 40%),
+        radial-gradient(circle at 80% 20%, rgba(255,255,255,.02) 0%, transparent 40%);
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+#loader.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.loader-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    animation: fadeUp 0.7s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.loader-brand strong {
+    font-size: clamp(1.8rem, 6vw, 3rem);
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    color: #fff;
+    line-height: 1;
+    margin-bottom: 6px;
+}
+
+.loader-brand small {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #666;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.loader-title {
+    font-size: clamp(1.2rem, 3.5vw, 1.7rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: rgba(255,255,255,.85);
+    animation: fadeUp 0.7s 0.1s cubic-bezier(.2,.8,.2,1) both;
+    text-align: center;
+    padding: 0 20px;
+    max-width: 90vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.loader-dots {
+    display: flex;
+    gap: 10px;
+    animation: fadeUp 0.7s 0.2s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.loader-dots .dot {
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    border-radius: 50%;
+    animation: dotBounce 1s infinite ease-in-out;
+}
+
+.loader-dots .dot:nth-child(2) { animation-delay: 0.15s; }
+.loader-dots .dot:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes dotBounce {
+    0%, 100% { transform: translateY(0); opacity: 0.2; }
+    50% { transform: translateY(-12px); opacity: 1; }
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================
+   CONTROL BAR
+   ============================================ */
+.controls {
+    position: fixed;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-80px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px;
+    background: rgba(0, 0, 0, 0.78);
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    border-radius: 15px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.4s cubic-bezier(.2,.8,.2,1);
+}
+
+.controls.visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 0.35;
+}
+
+.controls.visible:hover {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-2px);
+}
+
+.ctrl-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    height: 40px;
+    padding: 0 14px;
+    border: 1.5px solid transparent;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.ctrl-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.22);
+    transform: translateY(-2px);
+}
+
+.ctrl-btn:active {
+    transform: translateY(0) scale(0.96);
+}
+
+.ctrl-btn.close-btn:hover {
+    background: #dc2626;
+    border-color: #dc2626;
+}
+
+.ctrl-btn svg {
+    width: 17px;
+    height: 17px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.ctrl-divider {
+    width: 1px;
+    height: 22px;
+    background: rgba(255, 255, 255, 0.15);
+    margin: 0 3px;
+}
+
+.ctrl-title {
+    padding: 0 10px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ============================================
+   ERROR SCREEN (if game fails to load)
+   ============================================ */
+#error-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    padding: 24px;
+    background: #0a0a0a;
+    text-align: center;
+}
+
+#error-screen.show {
+    display: flex;
+}
+
+#error-screen h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.03em;
+}
+
+#error-screen p {
+    font-size: 0.9rem;
+    color: #888;
+    font-weight: 500;
+    max-width: 400px;
+    line-height: 1.5;
+}
+
+#error-screen .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+#error-screen button,
+#error-screen a {
+    padding: 12px 22px;
+    border-radius: 11px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+#error-screen .primary {
+    background: #fff;
+    color: #000;
+    border: 1.5px solid #fff;
+}
+
+#error-screen .primary:hover {
+    background: #e8e8e8;
+    transform: translateY(-2px);
+}
+
+#error-screen .secondary {
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+    border: 1.5px solid rgba(255,255,255,0.12);
+}
+
+#error-screen .secondary:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.25);
+    transform: translateY(-2px);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 650px) {
+    .controls {
+        top: 10px;
+        gap: 4px;
+        padding: 5px;
+        border-radius: 12px;
+    }
+
+    .ctrl-btn {
+        height: 36px;
+        padding: 0 10px;
+        font-size: 11.5px;
+    }
+
+    .ctrl-btn span {
+        display: none;
+    }
+
+    .ctrl-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .ctrl-title {
+        display: none;
+    }
+
+    .ctrl-divider {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================
+     GAME IFRAME
+     ============================================ -->
+<iframe
+    id="game-frame"
+    src="about:blank"
+    allowfullscreen
+    allow="autoplay; fullscreen; gamepad; clipboard-write; accelerometer; gyroscope"
+    referrerpolicy="no-referrer"
+></iframe>
+
+<!-- ============================================
+     LOADING SCREEN
+     ============================================ -->
+<div id="loader">
+    <div class="loader-brand">
+        <strong>Yumix</strong>
+        <small>Games</small>
+    </div>
+
+    <div class="loader-title" id="loader-title">Loading...</div>
+
+    <div class="loader-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
+</div>
+
+<!-- ============================================
+     ERROR SCREEN
+     ============================================ -->
+<div id="error-screen">
+    <h2>Couldn't load this game</h2>
+    <p id="error-message">The game might be offline, or the link is broken.</p>
+    <div class="btn-row">
+        <button class="primary" id="error-reload">Try again</button>
+        <a class="secondary" href="games.html">Back to games</a>
+    </div>
+</div>
+
+<!-- ============================================
+     CONTROL BAR
+     ============================================ -->
+<div class="controls" id="controls">
+    <button class="ctrl-btn" id="back-btn" title="Back to games">
+        <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        <span>Back</span>
+    </button>
+
+    <div class="ctrl-divider"></div>
+    <span class="ctrl-title" id="ctrl-title">Game</span>
+    <div class="ctrl-divider"></div>
+
+    <button class="ctrl-btn" id="reload-btn" title="Reload game">
+        <svg viewBox="0 0 24 24">
+            <path d="M21 12a9 9 0 1 1-3-6.7"/>
+            <polyline points="21 3 21 9 15 9"/>
+        </svg>
+        <span>Reload</span>
+    </button>
+
+    <button class="ctrl-btn" id="fullscreen-btn" title="Fullscreen">
+        <svg viewBox="0 0 24 24">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+        </svg>
+        <span>Fullscreen</span>
+    </button>
+
+    <button class="ctrl-btn" id="newtab-btn" title="Open in new tab">
+        <svg viewBox="0 0 24 24">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <path d="M15 3h6v6"/>
+            <path d="M10 14L21 3"/>
+        </svg>
+        <span>New tab</span>
+    </button>
+
+    <button class="ctrl-btn close-btn" id="close-btn" title="Close game">
+        <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        <span>Close</span>
+    </button>
+</div>
+
 <script>
-const id=new URLSearchParams(location.search).get('g');
-const g=GAMES.find(x=>x.folder===id),f=document.getElementById('f'),t=document.getElementById('t');
-if(g){t.textContent=g.name||g.folder;document.title=t.textContent+' | Yumix Games';f.src='Games/'+g.folder.split('/').map(encodeURIComponent).join('/')+'/index.html'}
-else t.textContent='Game not found';
-document.getElementById('rl').onclick=()=>f.src=f.src;
-document.getElementById('fs').onclick=()=>f.requestFullscreen&&f.requestFullscreen();
-</script></body></html>
+(function () {
+    "use strict";
+
+    var frame = document.getElementById("game-frame");
+    var loader = document.getElementById("loader");
+    var loaderTitle = document.getElementById("loader-title");
+    var controls = document.getElementById("controls");
+    var ctrlTitle = document.getElementById("ctrl-title");
+    var errorScreen = document.getElementById("error-screen");
+    var errorMessage = document.getElementById("error-message");
+
+    var backBtn = document.getElementById("back-btn");
+    var reloadBtn = document.getElementById("reload-btn");
+    var fullscreenBtn = document.getElementById("fullscreen-btn");
+    var newtabBtn = document.getElementById("newtab-btn");
+    var closeBtn = document.getElementById("close-btn");
+    var errorReload = document.getElementById("error-reload");
+
+    /* ============================================
+       PARSE URL PARAMS
+       ?url=<game path>&name=<display name>
+       ============================================ */
+    var params = new URLSearchParams(window.location.search);
+    var gameUrl = params.get("url") || "";
+    var gameName = params.get("name") || "Game";
+
+    if (!gameUrl) {
+        // No game specified — bounce back
+        window.location.href = "games.html";
+        return;
+    }
+
+    // Show game name everywhere
+    loaderTitle.textContent = gameName;
+    ctrlTitle.textContent = gameName;
+    document.title = gameName + " — Yumix Games";
+
+    /* ============================================
+       LOAD GAME
+       ============================================ */
+    var loadTimeout;
+    function loadGame() {
+        loader.classList.remove("hidden");
+        errorScreen.classList.remove("show");
+        frame.classList.remove("active");
+        frame.src = gameUrl;
+
+        // Fallback: hide loader after 8s even if load event doesn't fire
+        clearTimeout(loadTimeout);
+        loadTimeout = setTimeout(function () {
+            loader.classList.add("hidden");
+            frame.classList.add("active");
+            controls.classList.add("visible");
+        }, 8000);
+    }
+
+    frame.addEventListener("load", function () {
+        clearTimeout(loadTimeout);
+        // Small delay so the game has a moment to render
+        setTimeout(function () {
+            loader.classList.add("hidden");
+            frame.classList.add("active");
+            controls.classList.add("visible");
+        }, 300);
+    });
+
+    frame.addEventListener("error", function () {
+        clearTimeout(loadTimeout);
+        loader.classList.add("hidden");
+        errorScreen.classList.add("show");
+        errorMessage.textContent = "The game couldn't be loaded. It might be offline.";
+    });
+
+    loadGame();
+
+    /* ============================================
+       BACK / CLOSE
+       ============================================ */
+    function goBack() {
+        if (window.parent !== window) {
+            // We're embedded — ask parent to close us
+            try {
+                window.parent.postMessage({ type: "yumix-close-game" }, "*");
+                return;
+            } catch (e) {}
+        }
+        if (document.referrer && document.referrer.indexOf(location.host) > -1) {
+            history.back();
+        } else {
+            location.href = "games.html";
+        }
+    }
+
+    backBtn.addEventListener("click", goBack);
+    closeBtn.addEventListener("click", goBack);
+
+    /* ============================================
+       RELOAD
+       ============================================ */
+    function reloadGame() {
+        loader.classList.remove("hidden");
+        errorScreen.classList.remove("show");
+        frame.classList.remove("active");
+
+        // Reset src to force a fresh load
+        var current = gameUrl;
+        frame.src = "about:blank";
+        setTimeout(function () {
+            frame.src = current;
+        }, 100);
+    }
+
+    reloadBtn.addEventListener("click", reloadGame);
+    errorReload.addEventListener("click", reloadGame);
+
+    /* ============================================
+       FULLSCREEN
+       ============================================ */
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            var el = document.documentElement;
+            var req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+            if (req) {
+                req.call(el).catch(function () {
+                    // If fullscreen is blocked, try the iframe directly
+                    var f = frame;
+                    var freq = f.requestFullscreen || f.webkitRequestFullscreen || f.msRequestFullscreen;
+                    if (freq) freq.call(f).catch(function(){});
+                });
+            }
+        } else {
+            var exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+            if (exit) exit.call(document);
+        }
+    }
+
+    fullscreenBtn.addEventListener("click", toggleFullscreen);
+
+    document.addEventListener("fullscreenchange", function () {
+        var span = fullscreenBtn.querySelector("span");
+        if (span) span.textContent = document.fullscreenElement ? "Exit" : "Fullscreen";
+    });
+
+    /* ============================================
+       NEW TAB
+       ============================================ */
+    newtabBtn.addEventListener("click", function () {
+        window.open(gameUrl, "_blank", "noopener");
+    });
+
+    /* ============================================
+       KEYBOARD SHORTCUTS
+       ============================================ */
+    document.addEventListener("keydown", function (e) {
+        var tag = (e.target.tagName || "").toLowerCase();
+        if (tag === "input" || tag === "textarea") return;
+
+        if (e.key === "Escape") {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else {
+                goBack();
+            }
+        }
+        if (e.key === "f" && !e.ctrlKey && !e.metaKey) {
+            toggleFullscreen();
+        }
+        if (e.key === "r" && !e.ctrlKey && !e.metaKey) {
+            reloadGame();
+        }
+    });
+
+    /* ============================================
+       POST MESSAGES (if embedded)
+       ============================================ */
+    window.addEventListener("message", function (e) {
+        if (e.data && e.data.type === "yumix-close-game") {
+            goBack();
+        }
+    });
+
+})();
+</script>
+
+</body>
+</html>
