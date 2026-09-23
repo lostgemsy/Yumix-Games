@@ -1,1 +1,10 @@
-{ "name": "yumix-games", "version": "1.0.0", "private": true, "scripts": { "start": "npx vercel dev" } }
+{
+  "name": "yumix-games",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npx serve . -l 3000",
+    "build": "echo 'Static site: no build step required'",
+    "start": "npx serve . -l 3000"
+  }
+}
